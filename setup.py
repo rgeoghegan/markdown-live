@@ -33,7 +33,7 @@ setup(
     
     license = "BSD",
     keywords = "markdown",
-    #url = "http://packages.python.org/an_example_pypi_project",
+    url = "https://github.com/rgeoghegan/markdown-live",
     long_description=read('README.md'),
     classifiers=[
         "Development Status :: 3 - Alpha",

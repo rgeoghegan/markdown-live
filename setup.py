@@ -8,6 +8,11 @@ from setuptools import setup
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+requirements = [
+    n.strip() for n in read('requirements.txt').split('\n') if n.strip()
+]
+print(requirements)
+
 setup(
     name = "markdown-live",
     version = "0.0.1",
@@ -15,10 +20,20 @@ setup(
     author_email = "r.geoghegan@gmail.com",
     description = ("Serve your markdown files from an http server to see "
         "them render as you edit."),
+
+    packages=['markdown_live'],
+    install_requires = requirements,
+    package_data = {'': ['*.css', '*.ico']},
+    include_package_data = True,
+    entry_points={
+        'console_scripts': [
+            'markdown_live = markdown_live:run',
+        ],
+    },
+    
     license = "BSD",
     keywords = "markdown",
     #url = "http://packages.python.org/an_example_pypi_project",
-    packages=['markdown_live'],
     long_description=read('README.md'),
     classifiers=[
         "Development Status :: 3 - Alpha",

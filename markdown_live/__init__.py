@@ -7,7 +7,7 @@ import shutil
 
 import markdown
 
-VERSION = "0.0.1"
+VERSION = "0.0.2"
 DEFAULT_PORT = 8000
 
 def parse_args():

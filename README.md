@@ -7,7 +7,7 @@ markdown files as html live.
 Installation
 ------------
 
-`pip install markdown-live` should work.
+`pip install markdown-live` should work. It's compatible with python 2.7, and python 3.4+.
 
 Usage
 -----

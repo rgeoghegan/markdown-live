@@ -1,13 +1,18 @@
 import argparse
 from contextlib import closing
-from http.server import BaseHTTPRequestHandler, HTTPServer
 import mimetypes
 import os
 import shutil
 
+try:
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+except ImportError:
+    # Compatible with python 2.7
+    from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+
 import markdown
 
-VERSION = "0.0.2"
+VERSION = "0.0.3"
 DEFAULT_PORT = 8000
 
 def parse_args():

@@ -15,7 +15,7 @@ print(requirements)
 
 setup(
     name = "markdown-live",
-    version = "0.0.2",
+    version = "0.0.3",
     author = "Rory Geoghegan",
     author_email = "r.geoghegan@gmail.com",
     description = ("Serve your markdown files from an http server to see "

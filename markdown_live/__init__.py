@@ -8,7 +8,7 @@ try:
     from http.server import BaseHTTPRequestHandler, HTTPServer
 except ImportError:
     # Compatible with python 2.7
-    from SimpleHTTPServer import BaseHTTPRequestHandler, HTTPServer
+    from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
 import markdown
 
@@ -139,11 +139,15 @@ class MarkdownHTTPServer(HTTPServer):
     def __init__(self, server_address, location):
         self.root_location = location
 
-        # We pass in the class and self here to make it backwards
-        # compatible with python 2.7
-        super(MarkdownHTTPServer, self).__init__(
-            server_address, self.handler_class
-        )
+        try:
+            super().__init__(
+                server_address, self.handler_class
+            )
+        except TypeError:
+            # Python 2.7 will cause a type error, and in addition
+            # HTTPServer is an old-school class object, so use the old
+            # inheritance way here.
+            HTTPServer.__init__(self, server_address, self.handler_class)
 
 
 def run_server(port, location):

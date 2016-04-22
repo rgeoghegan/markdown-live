@@ -8,11 +8,11 @@ try:
     from http.server import BaseHTTPRequestHandler, HTTPServer
 except ImportError:
     # Compatible with python 2.7
-    from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+    from SimpleHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
 import markdown
 
-VERSION = "0.0.3"
+VERSION = "0.1.0"
 DEFAULT_PORT = 8000
 
 def parse_args():
@@ -26,6 +26,10 @@ def parse_args():
     )
     parser.add_argument('-v', '--version', action='store_true',
                         help='Just print out the version number')
+    parser.add_argument('location', default='.', nargs='?',
+                        help='Which directory or file to serve. If you pick '
+                            'a file, / on the server will automatically '
+                            'point to that file.')
     return parser.parse_args()
 
 class MarkdownHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -43,36 +47,62 @@ class MarkdownHTTPRequestHandler(BaseHTTPRequestHandler):
         elif path == 'favicon.ico':
             return self.favicon_response()
 
-        try:
-            f = open(path, 'r')
-        except OSError as o:
-            print(o)
+        if not os.path.isdir(self.server.root_location):
+            return self.markdown_file(self.server.root_location)
+
+        full_path = os.path.join(self.server.root_location, path)
+
+        if not os.path.exists(full_path):
             self.send_error(404, "File not found")
-            return None
 
-        with closing(f):
-            content = [
-                "<!doctype html>",
-                "<html><head>",
-                self.header_content(),
-                "</head>",
-                "<body>",
-                markdown.markdown(f.read()),
-                "</body></html>",
-            ]
-            content = "\n".join(content)
+        if os.path.isdir(full_path):
+            content = []
+            for entry in os.listdir(full_path):
+                content.append(
+                    '<div><a href="{}">{}</a>'.format(
+                        os.path.join(path, entry),
+                        entry
+                    )
+                )
+            return self.make_html(content)
 
-            self.send_response(200)
-            self.send_header("Content-type", self.content_type)
+        # Finally, try parsing the file as markdown
+        return self.markdown_file(full_path)
+
+    def make_html(self, content, last_modified=None):
+        full_page = [
+            "<!doctype html>",
+            "<html><head>",
+            self.header_content(),
+            "</head>",
+            "<body>",
+        ]
+        full_page.extend(content)
+        full_page.append("</body></html>")
+
+        text = "\n".join(full_page)
+        self.send_response(200)
+        self.send_header("Content-type", self.content_type)
+
+        if last_modified is not None:
+            self.send_header("Last-Modified",
+                             self.date_time_string(last_modified))
+
+        self.send_header("Content-Length", len(text))
+        self.end_headers()
+        self.wfile.write(text.encode(self.encoding))
+
+    def markdown_file(self, path):
+        with open(path) as f:
             fs = os.fstat(f.fileno())
-            self.send_header("Content-Length", len(content))
-            self.send_header("Last-Modified", self.date_time_string(fs.st_mtime))
-            self.end_headers()
-
-            self.wfile.write(content.encode(self.encoding))
+            return self.make_html(
+                [markdown.markdown(f.read())],
+                last_modified=fs.st_mtime
+            )
 
     def header_content(self):
-        return '<link href="{}" rel="stylesheet"></link>'.format('/' + self.stylesheet)
+        return '<link href="{}" rel="stylesheet"></link>'.format(
+            '/' + self.stylesheet)
 
     def stylesheet_response(self):
         return self.serve_file(self.stylesheet, mimetypes.types_map['.css'])
@@ -92,14 +122,33 @@ class MarkdownHTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_header("Content-type", content_type)
             fs = os.fstat(f.fileno())
             self.send_header("Content-Length", str(fs[6]))
-            self.send_header("Last-Modified", self.date_time_string(fs.st_mtime))
+            self.send_header("Last-Modified",
+                             self.date_time_string(fs.st_mtime))
             self.end_headers()
 
             shutil.copyfileobj(f, self.wfile)
 
-def run_server(port):
+
+class MarkdownHTTPServer(HTTPServer):
+    """
+    Hacky way to pass the location from run_server() to the Request Handler
+    object.
+    """
+    handler_class = MarkdownHTTPRequestHandler
+
+    def __init__(self, server_address, location):
+        self.root_location = location
+
+        # We pass in the class and self here to make it backwards
+        # compatible with python 2.7
+        super(MarkdownHTTPServer, self).__init__(
+            server_address, self.handler_class
+        )
+
+
+def run_server(port, location):
     server_address = ('', port)
-    httpd = HTTPServer(server_address, MarkdownHTTPRequestHandler)
+    httpd = MarkdownHTTPServer(server_address, location)
     print("Serving from http://localhost:{}/".format(port))
     httpd.serve_forever()
 
@@ -108,4 +157,4 @@ def run():
     if args.version:
         print("Version {}".format(VERSION))
     else:
-        run_server(args.port)
+        run_server(args.port, args.location)

@@ -1,0 +1,5 @@
+include README.md
+include requirements.txt
+include setup.py
+include markdown_live/favicon.ico
+include markdown_live/markdown.css

@@ -11,11 +11,10 @@ def read(fname):
 requirements = [
     n.strip() for n in read('requirements.txt').split('\n') if n.strip()
 ]
-print(requirements)
 
 setup(
     name = "markdown-live",
-    version = "0.0.3",
+    version = "0.1.0",
     author = "Rory Geoghegan",
     author_email = "r.geoghegan@gmail.com",
     description = ("Serve your markdown files from an http server to see "

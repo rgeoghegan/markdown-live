@@ -14,7 +14,7 @@ requirements = [
 
 setup(
     name = "markdown-live",
-    version = "0.1.0",
+    version = "1.0.0",
     author = "Rory Geoghegan",
     author_email = "r.geoghegan@gmail.com",
     description = ("Serve your markdown files from an http server to see "
@@ -35,7 +35,6 @@ setup(
     url = "https://github.com/rgeoghegan/markdown-live",
     long_description=read('README.md'),
     classifiers=[
-        "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
         "License :: OSI Approved :: BSD License",
     ],

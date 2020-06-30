@@ -14,7 +14,7 @@ requirements = [
 
 setup(
     name = "markdown-live",
-    version = "1.0.0",
+    version = "1.1.0",
     author = "Rory Geoghegan",
     author_email = "r.geoghegan@gmail.com",
     description = ("Serve your markdown files from an http server to see "

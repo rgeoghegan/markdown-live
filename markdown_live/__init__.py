@@ -12,7 +12,7 @@ except ImportError:
 
 import markdown
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 DEFAULT_PORT = 8000
 
 def parse_args():

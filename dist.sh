@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+set -e
+
 # Simple shell script to remember the right order of commands to use with
-# setup.py to update the package on pypi.
-python setup.py sdist register upload
+# setup.py to build the wheel/src dist.
+python setup.py sdist bdist_wheel
+# twine to upload to pypi
+twine upload dist/*

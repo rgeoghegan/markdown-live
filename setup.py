@@ -34,6 +34,7 @@ setup(
     keywords = "markdown",
     url = "https://github.com/rgeoghegan/markdown-live",
     long_description=read('README.md'),
+    long_description_content_type="text/markdown",
     classifiers=[
         "Topic :: Utilities",
         "License :: OSI Approved :: BSD License",
